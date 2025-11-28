@@ -125,11 +125,28 @@
         video.controls = false;
       }
 
+      const lockPortrait = () => {
+        if (isAndroid && screen.orientation && screen.orientation.lock) {
+          screen.orientation.lock('portrait').catch(function () {});
+        }
+      };
       const enterFullscreen = () => {
-        if (video.requestFullscreen) {
-          video.requestFullscreen();
-        } else if (video.webkitEnterFullscreen) {
-          video.webkitEnterFullscreen();
+        try {
+          if (video.requestFullscreen) {
+            const p = video.requestFullscreen();
+            if (p && typeof p.then === 'function') {
+              p.then(lockPortrait).catch(lockPortrait);
+            } else {
+              lockPortrait();
+            }
+          } else if (video.webkitEnterFullscreen) {
+            video.webkitEnterFullscreen();
+            lockPortrait();
+          } else {
+            lockPortrait();
+          }
+        } catch (e) {
+          lockPortrait();
         }
       };
 
