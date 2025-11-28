@@ -30,6 +30,7 @@
     .player-wrap {
       display: grid;
       place-items: center;
+      position: relative;
     }
     video {
       width: 100%;
@@ -37,19 +38,28 @@
       border-radius: 8px;
       background: #111827;
     }
+    .overlay {
+      position: absolute;
+      inset: 0;
+      display: none;
+      place-items: center;
+    }
+    .play-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: rgba(34,197,94,0.9);
+      color: #0b1021;
+      font-size: 24px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+    }
     .actions {
       margin-top: 12px;
-    }
-    .input {
-      display: inline-block;
-      padding: 8px 12px;
-      border-radius: 6px;
-      border: 1px solid #334155;
-      background: #0b1021;
-      color: #e2e8f0;
-      margin-left: 8px;
-      width: 56%;
-      box-sizing: border-box;
     }
     .btn {
       display: inline-block;
@@ -76,15 +86,16 @@
   <main>
     <h1>H5 原生系统播放器示例</h1>
     <div class="player-wrap">
-      <video id="player" controls preload="metadata" poster="https://upload.wikimedia.org/wikipedia/commons/7/73/Lilium_bulbiferum.jpg">
+      <video id="player" controls preload="metadata" poster="https://picsum.photos/seed/video-cover/800/450">
         <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4">
         您的浏览器不支持 HTML5 视频。
       </video>
+      <div id="overlay" class="overlay">
+        <button id="overlayPlay" class="play-btn">▶</button>
+      </div>
     </div>
     <div class="actions">
       <a id="openNative" class="btn" href="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" target="_blank" rel="noopener">用系统播放器打开</a>
-      <input id="posterInput" class="input" type="url" placeholder="封面图片URL">
-      <button id="applyPoster" class="btn" type="button">应用封面</button>
       <div class="hint">提示：不使用第三方库，使用 iOS/Android 原生控制。</div>
     </div>
   </main>
@@ -92,8 +103,10 @@
     (function () {
       const video = document.getElementById('player');
       const link = document.getElementById('openNative');
-      const posterInput = document.getElementById('posterInput');
-      const applyPoster = document.getElementById('applyPoster');
+      
+      const overlay = document.getElementById('overlay');
+      const overlayPlay = document.getElementById('overlayPlay');
+      
       const ua = navigator.userAgent || '';
       const isIOS = /iPhone|iPad|iPod/i.test(ua);
       const isAndroid = /Android/i.test(ua);
@@ -102,12 +115,14 @@
         video.removeAttribute('playsinline');
         video.removeAttribute('webkit-playsinline');
         video.removeAttribute('controlsList');
+        video.controls = false;
       } else if (isAndroid) {
         video.removeAttribute('playsinline');
         video.removeAttribute('x5-playsinline');
         video.setAttribute('x5-video-player-type', 'h5');
         video.setAttribute('x5-video-orientation', 'portrait');
         video.removeAttribute('controlsList');
+        video.controls = false;
       }
 
       const enterFullscreen = () => {
@@ -120,6 +135,18 @@
 
       if (isIOS || isAndroid) {
         video.addEventListener('play', enterFullscreen, { once: true });
+        overlay.style.display = 'grid';
+        overlayPlay.addEventListener('click', function () {
+          enterFullscreen();
+          video.play();
+          overlay.style.display = 'none';
+        });
+        video.addEventListener('playing', function () {
+          overlay.style.display = 'none';
+        });
+        video.addEventListener('ended', function () {
+          overlay.style.display = 'grid';
+        });
       }
 
       // 可选：点击按钮在新标签/外部应用中打开视频（由系统决定处理方式）
@@ -127,18 +154,7 @@
         // 保持默认行为：新开窗口/外部播放器由系统决定
       });
 
-      applyPoster.addEventListener('click', function () {
-        const url = (posterInput.value || '').trim();
-        if (!url) return;
-        const img = new Image();
-        img.onload = function () {
-          video.setAttribute('poster', url);
-        };
-        img.onerror = function () {
-          alert('封面加载失败');
-        };
-        img.src = url;
-      });
+      
     })();
   </script>
   
