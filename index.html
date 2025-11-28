@@ -40,6 +40,17 @@
     .actions {
       margin-top: 12px;
     }
+    .input {
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #334155;
+      background: #0b1021;
+      color: #e2e8f0;
+      margin-left: 8px;
+      width: 56%;
+      box-sizing: border-box;
+    }
     .btn {
       display: inline-block;
       padding: 8px 12px;
@@ -72,6 +83,8 @@
     </div>
     <div class="actions">
       <a id="openNative" class="btn" href="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" target="_blank" rel="noopener">用系统播放器打开</a>
+      <input id="posterInput" class="input" type="url" placeholder="封面图片URL">
+      <button id="applyPoster" class="btn" type="button">应用封面</button>
       <div class="hint">提示：不使用第三方库，使用 iOS/Android 原生控制。</div>
     </div>
   </main>
@@ -79,6 +92,8 @@
     (function () {
       const video = document.getElementById('player');
       const link = document.getElementById('openNative');
+      const posterInput = document.getElementById('posterInput');
+      const applyPoster = document.getElementById('applyPoster');
       const ua = navigator.userAgent || '';
       const isIOS = /iPhone|iPad|iPod/i.test(ua);
       const isAndroid = /Android/i.test(ua);
@@ -110,6 +125,19 @@
       // 可选：点击按钮在新标签/外部应用中打开视频（由系统决定处理方式）
       link.addEventListener('click', function () {
         // 保持默认行为：新开窗口/外部播放器由系统决定
+      });
+
+      applyPoster.addEventListener('click', function () {
+        const url = (posterInput.value || '').trim();
+        if (!url) return;
+        const img = new Image();
+        img.onload = function () {
+          video.setAttribute('poster', url);
+        };
+        img.onerror = function () {
+          alert('封面加载失败');
+        };
+        img.src = url;
       });
     })();
   </script>
