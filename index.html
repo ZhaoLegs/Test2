@@ -84,7 +84,7 @@
 </head>
 <body>
   <main>
-    <h1>H5 原生系统播放器示例</h1>
+    
     <div class="player-wrap">
       <video id="player" controls preload="metadata" poster="https://picsum.photos/seed/video-cover/800/450">
         <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4">
@@ -95,14 +95,13 @@
       </div>
     </div>
     <div class="actions">
-      <a id="openNative" class="btn" href="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" target="_blank" rel="noopener">用系统播放器打开</a>
       <div class="hint">提示：不使用第三方库，使用 iOS/Android 原生控制。</div>
     </div>
   </main>
   <script>
     (function () {
       const video = document.getElementById('player');
-      const link = document.getElementById('openNative');
+      
       
       const overlay = document.getElementById('overlay');
       const overlayPlay = document.getElementById('overlayPlay');
@@ -121,7 +120,8 @@
         video.removeAttribute('x5-playsinline');
         video.setAttribute('x5-video-player-type', 'h5');
         video.setAttribute('x5-video-orientation', 'portrait');
-        video.removeAttribute('controlsList');
+        video.setAttribute('controlsList', 'nodownload noplaybackrate');
+        video.setAttribute('disablepictureinpicture', '');
         video.controls = false;
       }
 
@@ -161,15 +161,22 @@
         video.addEventListener('playing', function () {
           overlay.style.display = 'none';
         });
-        video.addEventListener('ended', function () {
-          overlay.style.display = 'grid';
+        document.addEventListener('fullscreenchange', function () {
+          if (document.fullscreenElement === video) {
+            video.controls = false;
+          } else {
+            video.controls = true;
+            overlay.style.display = 'none';
+          }
+        });
+        // iOS 兼容：退出原生全屏后显示底部控件，不再显示中间按钮
+        video.addEventListener('webkitendfullscreen', function () {
+          video.controls = true;
+          overlay.style.display = 'none';
         });
       }
 
-      // 可选：点击按钮在新标签/外部应用中打开视频（由系统决定处理方式）
-      link.addEventListener('click', function () {
-        // 保持默认行为：新开窗口/外部播放器由系统决定
-      });
+      
 
       
     })();
