@@ -84,15 +84,27 @@
       const isAndroid = /Android/i.test(ua);
 
       if (isIOS) {
-        video.setAttribute('playsinline', '');
-        video.setAttribute('webkit-playsinline', '');
-        video.setAttribute('controlsList', 'nofullscreen noplaybackrate');
+        video.removeAttribute('playsinline');
+        video.removeAttribute('webkit-playsinline');
+        video.removeAttribute('controlsList');
       } else if (isAndroid) {
-        video.setAttribute('playsinline', '');
-        video.setAttribute('x5-playsinline', 'true');
+        video.removeAttribute('playsinline');
+        video.removeAttribute('x5-playsinline');
         video.setAttribute('x5-video-player-type', 'h5');
         video.setAttribute('x5-video-orientation', 'portrait');
-        video.setAttribute('controlsList', 'nofullscreen noplaybackrate');
+        video.removeAttribute('controlsList');
+      }
+
+      const enterFullscreen = () => {
+        if (video.requestFullscreen) {
+          video.requestFullscreen();
+        } else if (video.webkitEnterFullscreen) {
+          video.webkitEnterFullscreen();
+        }
+      };
+
+      if (isIOS || isAndroid) {
+        video.addEventListener('play', enterFullscreen, { once: true });
       }
 
       // 可选：点击按钮在新标签/外部应用中打开视频（由系统决定处理方式）
