@@ -84,14 +84,15 @@
       const isAndroid = /Android/i.test(ua);
 
       if (isIOS) {
-        // iOS Safari/WeChat：启用原生内联播放（仍为系统控件）
         video.setAttribute('playsinline', '');
         video.setAttribute('webkit-playsinline', '');
+        video.setAttribute('controlsList', 'nofullscreen noplaybackrate');
       } else if (isAndroid) {
-        // Android Chrome/WeChat：启用内联播放和 X5 兼容属性
         video.setAttribute('playsinline', '');
         video.setAttribute('x5-playsinline', 'true');
         video.setAttribute('x5-video-player-type', 'h5');
+        video.setAttribute('x5-video-orientation', 'portrait');
+        video.setAttribute('controlsList', 'nofullscreen noplaybackrate');
       }
 
       // 可选：点击按钮在新标签/外部应用中打开视频（由系统决定处理方式）
